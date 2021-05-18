@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<head>
+<meta charset="UTF-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Document</title>
+</head>
+<body>
+<p></p>
+<h1></h1>
+<div>
+    <p>Hello world</p>
+    <div>
+        <p>DOM tree is great</p>
+    </div>
+</div>
+<canvas id="canvas" width="2000" height="5000" style="position: absolute ;background-color:pink;"></canvas>
+
+<script>
+let canvas = document.getElementById("canvas")
+
+let context = canvas.getContext("2d")
+
+//set up graph canvas
+context.textAlign = "center"
+let nodesLevelHeight = 80
+let xPosition = canvas.width/2;
+let radius = 30
+
+function DOMtree(node,prefix){
+    console.log(prefix + node.nodeName);
+    //draw #document node
+    if(node.nodeName =="#document"){
+    context.arc(xPosition,nodesLevelHeight, radius, 0.5* Math.PI, 3*Math.PI)
+    context.fillText(node.nodeName, xPosition,nodesLevelHeight);
+    context.stroke();
+    }
+    for(let i=0; i < node.children.length; i++) {
+        DOMtree(node.children[i], prefix + '\t');
+    }
+}
+DOMtree(document,'')
+
+let currentParent
+let parentXposition
+let newLevelHieght = nodesLevelHeight *2 +50
+//let x = 
+let x = xPosition
+
+//draw HTML node
+drawRootElement(document.children[0],document.children[0].children.length)
+function drawRootElement(node,numChildren){
+
+    //draw the root Element HTML
+    currentParent = document.children[0]
+    context.arc(xPosition,newLevelHieght, radius, 1.5* Math.PI, 4*Math.PI)
+    context.fillText("<"+currentParent.nodeName+">", xPosition,newLevelHieght);
+    context.stroke();
+    
+    //drawing the treee
+    drawTree(currentParent,xPosition,newLevelHieght)
+
+    }
+    //drawing the lines
+function drawLines(xo,yo,xn,yn){
+    context.beginPath();
+    context.moveTo(xo,yo);
+    context.lineTo(xn,yn+(yn/2)-radius)
+    context.stroke()
+    }
+
+    //draw other nodes
+    
+function drawTree(parentNode,x,levelheight){
+    let childx
+    let childxLine
+    let text
+    
+    //save the old height
+    let oldHeight = levelheight+radius
+    //update level height
+    levelheight = levelheight +(levelheight/2)
+
+    for(let i = 0 ; i<parentNode.children.length;i++){
+        if(parentNode.children[i].nodeName =="HEAD"){
+            x = getXposition(xPosition,parentNode.children.length)-5
+            childx= x -110
+            childxLine = childx
+            drawLines(xPosition,oldHeight,x,oldHeight-radius)
+            
+            for(let j = 0 ; j< parentNode.children[i].children.length;j++){
+                drawLines(x,levelheight+radius,childxLine,levelheight)
+                childxLine = childxLine +80
+            }
+        }
+        
+        else if(parentNode.children[i].nodeName =="BODY"){
+            x = getXposition(xPosition,parentNode.children.length) + 500
+            childx= x -30
+            childxLine = childx
+            drawLines(xPosition,levelheight-75,x,levelheight-105)
+
+            for(let j = 0 ; j< parentNode.children[i].children.length;j++){
+            drawLines(x,levelheight+radius,childxLine,levelheight)
+            childxLine = childxLine + 80
+            }
+        }
+        else{
+            childx = x -30
+            childxLine = childx
+            
+            for(let j = 0 ; j< parentNode.children[i].children.length;j++){
+                drawLines(x,levelheight+radius,childxLine,levelheight)
+                childxLine = childxLine +80
+            }
+        }
+     
+        context.beginPath()
+        context.arc(x,levelheight, radius, 1.5* Math.PI, 4*Math.PI)
+        context.fillText("<"+parentNode.children[i].nodeName+">", x,levelheight);
+        context.stroke();
+
+        //printing text
+        if (parentNode.children[i].textContent.length>0 && parentNode.children[i].nodeName !="HEAD"&& parentNode.children[i].nodeName !="BODY" && parentNode.children[i].nodeName !="DIV"){
+            text = parentNode.children[i].textContent
+
+            if(text.length > 15){text = "'text'"}
+            context.beginPath()
+            context.rect(x-30,levelheight+radius*2, radius*2,radius)
+            context.fillText(text,x,levelheight+radius*2.5);
+            context.moveTo(x,levelheight+radius)
+            context.lineTo(x,levelheight+radius*2)
+            context.stroke()
+
+            
+
+        }
+        
+        x = x + 80
+        
+        drawTree(parentNode.children[i],childx,levelheight)
+        
+        }
+}
+
+function getXposition(parentXposition,numChildren){
+    let childxP
+
+    //if number is even
+    if(numChildren%2==0){
+        childxP = parentXposition - (parentXposition/4)
+    }
+    //if odd
+    if(numChildren%2 !=0){
+        childxP = parentXposition - (parentXposition/2)
+    }
+    
+    return childxP
+}
+
+    </script>
+</body>
+</html>
